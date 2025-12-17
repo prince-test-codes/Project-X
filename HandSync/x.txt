@@ -1,0 +1,11 @@
+pip install opencv-python mediapipe pyautogui
+
+
+Function                            Physical Gesture                        Finger Logic (T-I-M-R-P)                    Why it works
+Neutral / Ready                     Open Palm                               "[1, 1, 1, 1, 1]"                           System waits no actions are fired.
+Play                                Closed Fist                             "[0, 0, 0, 0, 0]"                           High-intent action easy to detect.
+Pause                               Finger Tight                            "[0, 1, 1, 1, 1]"                           Index/Mid/Ring/Pinky up but pressed together.
+Scroll Mode                         "V" Sign                                "[0, 1, 1, 0, 0]"                           "Index and Middle up, others strictly down."
+Left Click                          Index Pinch                             "[0, 1, 0, 0, 0] + Thumb"                   Thumb touches Index while other fingers are closed.
+Address (Tab)                       Pointing                                "[0, 1, 0, 0, 0]"                           Single finger extension; moves focus.
+Close Tab                           "The "OK"                               [Thumb + Index] Circle                      "Uses distance math to avoid ""Pinch"" confusion."
