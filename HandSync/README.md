@@ -1,71 +1,170 @@
-# HandSync
+# HandSync ✋🖱️  
+*A Camera‑Driven Virtual Mouse & Gesture Control System*
 
-## ⚠️ Disclaimer: The Cauldron Bubbles!
+---
 
-**This project is under active development!** We're brewing new functionalities, refining spells, and squashing bugs. Expect updates, improvements, and possibly some magical mishaps. Use at your own risk—HandSync is not responsible for any accidental tab closures or unexpected media pauses. Contributions and feedback are welcome to help perfect this sorcery!
+## ⚠️ IMPORTANT – READ THIS FIRST (MediaPipe + Python)
+MediaPipe **will fail on newer Python versions** if not set up correctly.
 
-Welcome to **HandSync**, the ultimate hand-gesture wizardry tool that transforms your webcam into a magical conduit for controlling your computer! Wave your hands like a maestro and command your digital realm with intuitive gestures. Whether you're scrolling through epic tales, pausing dramatic scenes, or closing pesky tabs, this Python-powered enchantment makes it all possible.
+✅ **HandSync is tested and stable ONLY with:**
+- **Python 3.11**
+- **MediaPipe 0.10.9 (classic `mp.solutions` API)**
 
-## 🌟 What Makes This Spellbinding?
+❌ Python 3.12+ or MediaPipe ≥ 0.10.30 **will break this project**.
 
-HandSync harnesses the arcane arts of computer vision and machine learning to detect hand gestures in real-time. Built with OpenCV, MediaPipe, and PyAutoGUI, it bridges the gap between your physical movements and digital actions. No wands required—just your webcam and a dash of hand magic!
+This README **forces a Conda-based setup** to avoid those issues permanently.
 
-### Key Enchantments:
-- **Real-Time Gesture Detection**: Processes live video feed at lightning speed.
-- **Cooldown Mechanism**: Prevents accidental spell casts with a 0.5-second cooldown.
-- **Visual Feedback**: See your gestures in action with on-screen labels and landmarks.
-- **Customizable Gestures**: Easily tweak finger logic for personalized sorcery.
-- **Cross-Platform Control**: Works on any system with Python and a webcam.
+---
 
-## 🖐️ Gesture Spells & Their Secrets
+## 🧙‍♂️ What is HandSync?
+**HandSync** turns your webcam into a **virtual mouse and gesture controller**.  
+Using real‑time hand‑tracking, you can:
 
-Dive into the grimoire of gestures! Each spell is defined by finger positions (Thumb, Index, Middle, Ring, Pinky) and triggers specific actions. Here's the enchanted table from our ancient scrolls:
+- Move the mouse with **one finger**
+- Click using **natural pinch or micro‑jerk motion**
+- Scroll using **two fingers**
+- Interact with your OS **without touching a mouse**
 
-| Function          | Physical Gesture          | Finger Logic (T-I-M-R-P) | Why It Works |
-|-------------------|---------------------------|---------------------------|--------------|
-| Neutral / Ready  | Open Palm                | [1, 1, 1, 1, 1]         | System waits; no actions fired. |
-| Play             | Closed Fist              | [0, 0, 0, 0, 0]         | High-intent action, easy to detect. |
-| Pause            | Finger Tight             | [0, 1, 1, 1, 1]         | Index/Mid/Ring/Pinky up but pressed together. |
-| Scroll Mode      | "V" Sign                 | [0, 1, 1, 0, 0]         | Index and Middle up, others strictly down. |
-| Left Click       | Index Pinch              | [0, 1, 0, 0, 0] + Thumb | Thumb touches Index while other fingers closed. |
-| Address (Tab)    | Pointing                 | [0, 1, 0, 0, 0]         | Single finger extension; moves focus. |
-| Close Tab        | "The OK"                 | [Thumb + Index] Circle   | Uses distance math to avoid "Pinch" confusion. |
+No gloves. No sensors. Just your hand.
 
-## 🛠️ Summoning the Spell (Installation)
+---
 
-To awaken HandSync, you'll need Python 3.x and a trusty webcam. Follow these incantations:
+## ✨ Key Features (Current)
+✔ One‑finger cursor movement (smooth & mapped)  
+✔ Natural pinch click (adaptive to hand size)  
+✔ Anti‑shake smoothing & click‑lock safety  
+✔ Dynamic calibration (works for near/far hands)  
+✔ Scroll mode with vertical hand movement  
+✔ Visual feedback + active interaction zone  
+✔ Fully offline, no internet required  
 
-1. **Clone the Repository**:
-   ```
-   git clone https://github.com/your-repo/handsync.git
-   cd handsync
-   ```
+---
 
-2. **Install the Arcane Dependencies**:
-   ```
-   pip install opencv-python mediapipe pyautogui
-   ```
+## 🧠 How It Works (Concept)
+HandSync uses:
+- **MediaPipe Hands** → Detects 21 hand landmarks
+- **Dynamic hand scaling** → Click thresholds adapt to hand size
+- **Frame smoothing** → Prevents cursor jitter
+- **State locking** → Prevents accidental multiple clicks
 
-3. **Grant Permissions**: Ensure your webcam is accessible and PyAutoGUI has control over your system inputs.
+Instead of fixed distances, **your own hand becomes the ruler**.
 
-## 🚀 Casting the Spell (Usage)
+---
 
-1. Run the enchantment:
-   ```
-   python visual_ctrl.py
-   ```
+## 🖐️ Gesture Map (Current)
 
-2. A window titled "HandSync" will appear, showing your webcam feed.
+| Gesture | Action |
+|------|------|
+| ☝️ Index finger up | Move cursor |
+| 🤏 Thumb + Index pinch | Left click |
+| ☝️ + sudden jerk | Natural click |
+| ☝️ + ✌️ (Index + Middle) | Scroll |
+| Hold pinch | Drag‑safe (cursor freeze) |
+| Hand out of frame | Idle / Safe mode |
 
-3. Perform gestures in front of the camera. Watch the "CMD" label for feedback!
+---
 
-4. Press 'q' to dispel the spell and exit.
+## 🧪 Demo Mode
+On startup you will see:
+- A **white interaction box** → active tracking area
+- Live **pinch distance indicator**
+- On‑screen feedback for click & scroll modes
 
-### Tips for Mastery:
-- Position your hand clearly in the frame.
-- Experiment with lighting for better detection.
-- Customize `COOLDOWN`, `W_CAM`, and `H_CAM` in the script for your setup.
+---
 
-## 📜 Copyright
+## 🛠️ Installation (RECOMMENDED – Conda)
 
-© 2025 PRINCE RAJ SINGH (Group: CArnage Sentinels). All rights reserved. This project is open-source under the MIT License (or your chosen license). Feel free to fork, modify, and share, but give credit where due!
+### 1️⃣ Install Miniconda
+Download from:
+https://docs.conda.io/en/latest/miniconda.html
+
+✔ Add Conda to PATH during installation
+
+---
+
+### 2️⃣ Create Correct Environment
+```bash
+conda create -n handsync python=3.11 -y
+conda activate handsync
+```
+
+---
+
+### 3️⃣ Install Dependencies (Pinned Versions)
+```bash
+pip install opencv-python pyautogui mediapipe==0.10.9 numpy
+```
+
+⚠️ **DO NOT upgrade MediaPipe**
+
+---
+
+## ▶️ Run HandSync
+```bash
+python visual_ctrl.py
+```
+
+Press **Q** to quit safely.
+
+---
+
+## 📂 Project Structure
+```
+HandSync/
+│
+├── visual_ctrl.py   # Main controller
+├── README.md        # This file
+```
+
+---
+
+## 🔧 Configuration (Inside Code)
+```python
+SMOOTHING = 6      # Cursor smoothness
+FRAME_R = 100      # Active area padding
+SCROLL_SPEED = 20  # Scroll intensity
+```
+
+Increase `SMOOTHING` → smoother but slower cursor  
+Decrease it → faster but shakier
+
+---
+
+## 🚧 Roadmap (Coming Soon)
+These features are **planned and in progress**:
+
+🔜 Drag & drop gesture  
+🔜 Right‑click gesture  
+🔜 Volume control via pinch distance  
+🔜 Gesture calibration UI  
+🔜 FPS & latency overlay  
+🔜 Multi‑hand support  
+🔜 Application‑specific profiles  
+
+---
+
+## ⚠️ Known Limitations
+- Requires good lighting
+- Single‑hand tracking only (for now)
+- Webcam quality affects accuracy
+
+---
+
+## 👨‍💻 Author & Credits
+**HandSync**  
+© 2025 **Prince Raj Singh** & **K. Harish** 
+Group: **Carnage Sentinels**
+
+Built using:
+- OpenCV
+- MediaPipe
+- PyAutoGUI
+
+---
+
+## 📜 License
+MIT License – Free to use, modify, and share with attribution.
+
+---
+
+🪄 *Wave less. Do more.*
